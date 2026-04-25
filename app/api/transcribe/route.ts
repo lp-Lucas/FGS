@@ -16,7 +16,10 @@ export async function POST(request: Request) {
 
   if (!apiKey) {
     return NextResponse.json(
-      { error: "Configure GEMINI_API_KEY no .env.local para transcrever com Gemini." },
+      {
+        error:
+          "Configure a variavel GEMINI_API_KEY nas Environment Variables da Vercel. Localmente, use .env.local."
+      },
       { status: 400 }
     );
   }

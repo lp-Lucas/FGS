@@ -163,7 +163,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       ...localEvaluation(script),
       summary:
-        "Preenchi uma avaliacao local provisoria. Configure GEMINI_API_KEY na Vercel para usar a avaliacao por IA."
+        "Preenchi uma avaliacao local provisoria. Configure a variavel GEMINI_API_KEY na Vercel para usar a avaliacao por IA."
     });
   }
 
