@@ -52,6 +52,8 @@ type EvaluationResponse = {
   source: "gemini" | "local";
 };
 
+const MAX_TRANSCRIPTION_UPLOAD_BYTES = 4 * 1024 * 1024;
+
 const blocks: Block[] = [
   {
     id: "F",
@@ -443,7 +445,11 @@ export default function Home() {
     setVideoName(file.name);
     setVideoFile(file);
     setIsPlaying(false);
-    setTranscriptionStatus("");
+    setTranscriptionStatus(
+      file.size > MAX_TRANSCRIPTION_UPLOAD_BYTES
+        ? "Este vídeo passa de 4 MB. Na Vercel, corte ou comprima antes de transcrever com Gemini."
+        : ""
+    );
   }
 
   function formatTime(seconds: number) {
@@ -508,6 +514,13 @@ export default function Home() {
       return;
     }
 
+    if (videoFile.size > MAX_TRANSCRIPTION_UPLOAD_BYTES) {
+      setTranscriptionStatus(
+        "Este vídeo passa de 4 MB. A Vercel bloqueia uploads maiores em Functions. Corte ou comprima o arquivo antes de transcrever."
+      );
+      return;
+    }
+
     try {
       setIsTranscribing(true);
       setTranscriptionStatus("Enviando vídeo para o Gemini transcrever...");
@@ -520,7 +533,17 @@ export default function Home() {
         body: formData
       });
 
-      const data = (await response.json()) as { transcript?: string; error?: string };
+      const responseText = await response.text();
+      let data: { transcript?: string; error?: string };
+
+      try {
+        data = JSON.parse(responseText) as { transcript?: string; error?: string };
+      } catch {
+        data = {
+          error:
+            responseText || "A Vercel retornou uma resposta inválida durante a transcrição."
+        };
+      }
 
       if (!response.ok || !data.transcript) {
         throw new Error(data.error ?? "Não foi possível transcrever agora.");

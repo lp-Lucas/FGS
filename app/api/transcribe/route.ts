@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-const MAX_INLINE_BYTES = 18 * 1024 * 1024;
+const MAX_INLINE_BYTES = 4 * 1024 * 1024;
 
 function extractOutputText(data: {
   candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         error:
-          "Este video esta grande para transcricao inline. Teste com um arquivo de ate 18 MB."
+          "Este video esta grande para transcricao na Vercel. Use um arquivo de ate 4 MB ou comprima/corte o video."
       },
       { status: 413 }
     );
